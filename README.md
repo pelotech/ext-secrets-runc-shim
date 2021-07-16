@@ -77,3 +77,39 @@ The default credential chain on the node running the pod is used when retrieving
 
 The default credential chain on the node running the pod is used when retrieving the secret value.
 You must also set the `KEYVAULT_BASE_URL` in your pod's environment (similarly as done with Vault above).
+
+## Building and Testing Locally
+
+The `Makefile` contains helpers for testing the shim locally in a `k3d` cluster. 
+You must have at least the following installed on your system for various targets:
+
+ - `go`
+ - `docker`
+ - `kubectl`
+ - `helm`
+
+To build the shim:
+
+```sh
+make
+# OR
+make build
+```
+
+To spin up a `k3d` cluster (`k3d` will be installed locally) using the shim with a configured vault installation:
+
+```sh
+make k3d-up
+```
+
+To tear down the `k3d` environment:
+
+```sh
+make k3d-down
+```
+
+To run an e2e test with vault as the secret backend:
+
+```sh
+make testacc
+```

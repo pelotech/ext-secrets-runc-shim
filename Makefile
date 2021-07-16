@@ -2,30 +2,42 @@ build:
 	cd cmd/containerd-shim-ext-secrets-runc-v1 && \
 		CGO_ENABLED=0 go build -o ../../test/shim/containerd-shim-ext-secrets-runc-v1 .
 
+KUBECTL  ?= kubectl
+HELM     ?= helm
+K8S_VER  ?= v1.21.1
+BIN_DIR  ?= $(CURDIR)/bin
+
+K3D         ?= bin/k3d
+K3D_VERSION ?= v4.4.7
+$(K3D):
+	mkdir -p "$(BIN_DIR)"
+	curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | \
+		USE_SUDO=false TAG=$(K3D_VERSION) K3D_INSTALL_DIR="$(BIN_DIR)" bash
+
 CONTEXT          ?= k3d-$(CLUSTER_NAME)
 CLUSTER_NAME     ?= ext-secrets
 K3D_CLUSTER_ARGS ?= 
 
-k3d-up: build
-	k3d cluster create $(K3D_CLUSTER_ARGS) \
+k3d-up: $(K3D) build
+	$(K3D) cluster create $(K3D_CLUSTER_ARGS) \
 		--volume $(CURDIR)/test/shim:/usr/local/bin@server[0] \
 		--volume $(CURDIR)/test/containerd:/var/lib/rancher/k3s/agent/etc/containerd@server[0] \
 		--port 8200:8200@loadbalancer \
 		$(CLUSTER_NAME)
 	$(MAKE) install-vault
 
-k3d-down:
-	k3d cluster delete $(CLUSTER_NAME)
+k3d-down: $(K3D)
+	$(K3D) cluster delete $(CLUSTER_NAME)
 
 VAULT_IMAGE = vault:1.7.3
 VAULT_CHART = https://helm.releases.hashicorp.com/vault-0.13.0.tgz
 
-install-vault:
+install-vault: $(K3D)
 	# Pre load vault image for faster startup
 	docker image inspect $(VAULT_IMAGE) > /dev/null || docker pull $(VAULT_IMAGE)
-	k3d image import --cluster $(CLUSTER_NAME) vault:1.7.3
+	$(K3D) image import --cluster $(CLUSTER_NAME) vault:1.7.3
 
-	helm upgrade --install \
+	$(HELM) upgrade --install \
 		--kube-context $(CONTEXT) \
 		-f test/vault/values.yaml \
 		vault $(VAULT_CHART)
@@ -38,7 +50,7 @@ install-vault:
 	$(MAKE) init-vault
 
 TEST_PASSWORD = supersecret
-VAULT_EXEC = kubectl --context $(CONTEXT) exec -it vault-0 -- vault
+VAULT_EXEC = $(KUBECTL) --context $(CONTEXT) exec -it vault-0 -- vault
 init-vault:
 	$(VAULT_EXEC) operator init -key-shares=1 -key-threshold=1 -format=json > test/cluster-keys.json
 	$(VAULT_EXEC) operator unseal `cat test/cluster-keys.json | jq -r ".unseal_keys_b64[]"`
@@ -58,14 +70,14 @@ init-vault:
 		ttl=24h
 
 apply-pod:
-	kubectl apply --context $(CONTEXT) -f test/manifests/pod.yaml
+	$(KUBECTL) apply --context $(CONTEXT) -f test/manifests/pod.yaml
 
 testacc:
 	$(MAKE) k3d-up apply-pod
-	kubectl --context $(CONTEXT) wait pod \
+	$(KUBECTL) --context $(CONTEXT) wait pod \
 		--for condition=Ready \
 		test-pod
-	@if kubectl logs test-pod | grep $(TEST_PASSWORD) > /dev/null ; then \
+	@if $(KUBECTL) logs test-pod | grep $(TEST_PASSWORD) > /dev/null ; then \
 		echo "Pod received correct secret"; \
 	else \
 		echo "Pod did not receive correct secret" && exit 1; \

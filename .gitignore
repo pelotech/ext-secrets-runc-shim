@@ -2,3 +2,4 @@ test/containerd/config.toml
 test/shim
 test/cluster-keys.json
 dist/
+bin/
