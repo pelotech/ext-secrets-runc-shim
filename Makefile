@@ -84,7 +84,7 @@ LDFLAGS         ?= "-s -w"
 COMPILE_TARGETS ?= "linux/amd64 linux/arm linux/arm64"
 COMPILE_OUTPUT  ?= "$(DIST)/{{.Dir}}_{{.OS}}_{{.Arch}}"
 .PHONY: dist
-dist:
+dist: $(GOX)
 	mkdir -p $(DIST)
 	cd cmd/containerd-shim-ext-secrets-runc-v1 && \
 		CGO_ENABLED=0 $(GOX) -osarch=$(COMPILE_TARGETS) -output=$(COMPILE_OUTPUT) -ldflags=$(LDFLAGS)
