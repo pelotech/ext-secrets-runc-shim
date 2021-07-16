@@ -58,6 +58,7 @@ _Feel free to open a PR to track the implementation of other secret storage engi
 Kubernetes service account authentication is used to retrieve a vault token. 
 The service account of the pod being created is used. Additionally, you have to specify
 at a minimum the `VAULT_ADDR` (and any other needed configurations) via the containers environment.
+This address **must** resolve from outside the Kubernetes network.
 
 See the simple [test pod](test/manifests/pod.yaml) for an example.
 
