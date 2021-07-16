@@ -42,12 +42,14 @@ Caveats apply depending on the secret provider used. See below for more details 
 Below is a table of the secret providers implemented and/or tested. 
 Since this project is stil POC, tested in this case implies a basic functionality test has been done.
 
-| Provider              | Tag     | Implemented | Tested |
-|:---------------------:|:-------:|:-----------:|:------:|
-| Vault                 | `vault` | [x]         | [x]    |
-| AWS SSM               | `ssm`   | [x]         | [ ]    |
-| Google Secret Manager | `gsm`   | [x]         | [ ]    | 
-| Azure Key Vault       | `akv`   | [x]         | [ ]    |
+| Provider              | Tag     | Implemented        | Tested             |
+|:---------------------:|:-------:|:------------------:|:------------------:|
+| Vault                 | `vault` | :heavy_check_mark: | :heavy_check_mark: |
+| AWS SSM               | `ssm`   | :heavy_check_mark: | :white_check_mark: |
+| Google Secret Manager | `gsm`   | :heavy_check_mark: | :white_check_mark: |
+| Azure Key Vault       | `akv`   | :heavy_check_mark: | :white_check_mark: |
+
+_Feel free to open a PR to track the implementation of other secret storage engines._
 
 ## Caveats
 
