@@ -19,7 +19,10 @@ Edit `/etc/containerd/config.toml` and replace the contents of the following sec
 
 ```toml
 [plugins.cri.containerd.runtimes.runc]
+  # This is an existing value that needs to be changed
   runtime_type = "io.containerd.ext-secrets-runc.v1"
+  # On most installations you will need to add this parameter to the section
+  pod_annotations = ["ext-secrets.runc.io/*"]
 ```
 
 And that's it! All pods on this node should now run via the shim. No Webhooks, no Custom Resources, no CLI commands.
@@ -58,9 +61,21 @@ _Feel free to open a PR to track the implementation of other secret storage engi
 ### Vault
 
 Kubernetes service account authentication is used to retrieve a vault token. 
-The service account of the pod being created is used. Additionally, you have to specify
-at a minimum the `VAULT_ADDR` (and any other needed configurations) via the containers environment.
-This address **must** resolve from outside the Kubernetes network.
+The service account of the pod being created is used. 
+Additionally, the following pod annotations are parsed for configurations:
+
+```yaml
+# ...
+metadata:
+  annotations:
+    # The addres to the vault user
+    ext-secrets.runc.io/vault-addr: https://vault.example.com:8200
+    # The auth role to use when retrieving a vault token
+    ext-secrets.runc.io/vault-auth-role: ext-secrets
+# ...
+```
+
+The Vault address **must** resolve from outside the Kubernetes network.
 
 See the simple [test pod](test/manifests/pod.yaml) for an example.
 
@@ -76,7 +91,16 @@ The default credential chain on the node running the pod is used when retrieving
 ### Azure Key Vault
 
 The default credential chain on the node running the pod is used when retrieving the secret value.
-You must also set the `KEYVAULT_BASE_URL` in your pod's environment (similarly as done with Vault above).
+Additionally, the following pod annotations are parsed for configurations:
+
+```yaml
+# ...
+metadata:
+  annotations:
+    # The KeyVault Base URL
+    ext-secrets.runc.io/keyvault-base-url: https://myakv.vault.azure.net
+# ...
+```
 
 ## Building and Testing Locally
 

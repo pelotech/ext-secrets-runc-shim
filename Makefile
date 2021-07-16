@@ -61,9 +61,8 @@ init-vault:
 	$(VAULT_EXEC) write auth/kubernetes/config \
         kubernetes_host="https://kubernetes.default.svc.cluster.local" \
 		issuer="https://kubernetes.default.svc.cluster.local"
-	echo 'path "secrets/*" { capabilities = ["read"] }' | \
-		$(VAULT_EXEC) policy write vault-shim-test -
-	$(VAULT_EXEC) write auth/kubernetes/role/vault-shim \
+	$(VAULT_EXEC) policy write vault-shim-test - <<< 'path "secrets/*" { capabilities = ["read"] }'
+	$(VAULT_EXEC) write auth/kubernetes/role/ext-secrets \
 		bound_service_account_names=default \
 		bound_service_account_namespaces=default \
 		policies=vault-shim-test \

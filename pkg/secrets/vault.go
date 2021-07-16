@@ -40,9 +40,13 @@ func (v *vaultProvider) GetValue(_ context.Context, path string) (string, error)
 const defaultTokenPath = "/var/run/secrets/kubernetes.io/serviceaccount"
 
 func getVaultClient(spec *ocispec.Spec) (*api.Client, error) {
-	vaultAddr := util.GetEnvValueByKey(spec, "VAULT_ADDR")
+	vaultAddr := util.GetAnnotation(spec, "vault-addr")
 	if vaultAddr == "" {
 		return nil, errors.New("could not detect vault address from container spec")
+	}
+	authRole := util.GetAnnotation(spec, "vault-auth-role")
+	if authRole == "" {
+		authRole = "default"
 	}
 	cfg := api.DefaultConfig()
 	cfg.Address = vaultAddr
@@ -55,7 +59,7 @@ func getVaultClient(spec *ocispec.Spec) (*api.Client, error) {
 	if tokenPath == "" {
 		return nil, errors.New("could not find a kubernetes service account token for the container")
 	}
-	token, err := getK8sAuth(tokenPath, cfg)
+	token, err := getK8sAuth(tokenPath, authRole, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +117,7 @@ func getVaultSecret(client *api.Client, pathAndKey string) (value string, err er
 	return
 }
 
-func getK8sAuth(tokenPath string, vaultConfig *api.Config) (*api.Secret, error) {
+func getK8sAuth(tokenPath, authRole string, vaultConfig *api.Config) (*api.Secret, error) {
 	tokenBytes, err := ioutil.ReadFile(tokenPath)
 	if err != nil {
 		return nil, err
@@ -122,8 +126,8 @@ func getK8sAuth(tokenPath string, vaultConfig *api.Config) (*api.Secret, error) 
 	// TODO: role should be configurable
 	body := []byte(fmt.Sprintf(`{
 		"jwt": "%s",
-		"role": "vault-shim"
-	}`, string(tokenBytes)))
+		"role": "%s"
+	}`, string(tokenBytes), authRole))
 	req, err := http.NewRequest(http.MethodPost, authURLStr, bytes.NewReader(body))
 	if err != nil {
 		return nil, err

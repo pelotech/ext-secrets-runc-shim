@@ -3,6 +3,8 @@ package shim
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"strings"
 
 	"github.com/containerd/containerd/log"
 	ocispec "github.com/opencontainers/runtime-spec/specs-go"
@@ -14,6 +16,12 @@ import (
 func parseSpec(ctx context.Context, spec *ocispec.Spec) error {
 	envSecrets := make(map[int]map[string]string)
 	newEnv := make([]string, len(spec.Process.Env))
+
+	for k, v := range spec.Annotations {
+		if strings.HasPrefix(k, "ext-secrets") {
+			ioutil.WriteFile(fmt.Sprintf("/tmp/%s-annotations", spec.Hostname), []byte(k+"="+v), 0644)
+		}
+	}
 
 	for i, envVar := range spec.Process.Env {
 		key, value := util.EnvStrToKeyValue(envVar)

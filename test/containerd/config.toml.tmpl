@@ -27,6 +27,7 @@
 
 [plugins.cri.containerd.runtimes.runc]
   runtime_type = "io.containerd.ext-secrets-runc.v1"
+  pod_annotations = ["ext-secrets.runc.io/*"]
 
 {{ if .PrivateRegistryConfig }}
 {{ if .PrivateRegistryConfig.Mirrors }}

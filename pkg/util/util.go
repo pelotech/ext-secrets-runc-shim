@@ -7,6 +7,7 @@ import (
 )
 
 const extSecretPrefix = "ext-secret"
+const extSecretAnnotationPrefix = "ext-secrets.runc.io"
 
 func EnvStrToKeyValue(in string) (key, value string) {
 	spl := strings.Split(in, "=")
@@ -18,9 +19,9 @@ func EnvStrToKeyValue(in string) (key, value string) {
 	return
 }
 
-func GetEnvValueByKey(spec *ocispec.Spec, lookup string) string {
-	for _, env := range spec.Process.Env {
-		key, val := EnvStrToKeyValue(env)
+func GetAnnotation(spec *ocispec.Spec, lookup string) string {
+	for key, val := range spec.Annotations {
+		key = strings.TrimPrefix(key, extSecretAnnotationPrefix+"/")
 		if key == lookup {
 			return val
 		}

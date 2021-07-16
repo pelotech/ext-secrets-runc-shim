@@ -21,7 +21,7 @@ func (a *azureSecretsProvider) Setup(_ context.Context, spec *ocispec.Spec) erro
 	if keyVaultClient != nil {
 		return nil
 	}
-	keyVaultBaseURL = util.GetEnvValueByKey(spec, "KEYVAULT_BASE_URL")
+	keyVaultBaseURL = util.GetAnnotation(spec, "keyvault-base-url")
 	if keyVaultBaseURL == "" {
 		return errors.New("could not detect base keyvault url from container spec")
 	}
