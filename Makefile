@@ -100,3 +100,10 @@ dist: $(GOX)
 	cd cmd/containerd-shim-ext-secrets-runc-v1 && \
 		CGO_ENABLED=0 $(GOX) -osarch=$(COMPILE_TARGETS) -output=$(COMPILE_OUTPUT) -ldflags=$(LDFLAGS)
 	upx -9 $(DIST)/*
+
+license-headers:
+	for i in `find . -type f \
+		-not -wholename '.git/*' \
+		-name '*.go'` ; do \
+			if ! grep -q Copyright $$i ; then cat hack/boilerplate.go.txt $$i > $$i.new && mv $$i.new $$i ; fi ; \
+	done
