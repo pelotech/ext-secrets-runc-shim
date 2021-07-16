@@ -68,7 +68,7 @@ Additionally, the following pod annotations are parsed for configurations:
 # ...
 metadata:
   annotations:
-    # The addres to the vault user
+    # The addres to the vault server
     ext-secrets.runc.io/vault-addr: https://vault.example.com:8200
     # The auth role to use when retrieving a vault token
     ext-secrets.runc.io/vault-auth-role: ext-secrets
