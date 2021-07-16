@@ -13,7 +13,7 @@ First, go to the [releases page](https://github.com/pelotech/ext-secrets-runc-sh
 
 _Alternative to downloading, clone this repository and run `make`. The output will be in `test/shim`_
 
-_While this project is very early-stages POC, an obvious more persistent and scalable installation would be to bake the binary and following configurations into your node image(s) or bootstrap._
+_While this project is very early-stages POC and not recommended for daily usage, an obvious more persistent and scalable installation would be to bake the binary and following configurations into your node image(s) or bootstrap._
 
 Edit `/etc/containerd/config.toml` and replace the contents of the following section as so:
 
