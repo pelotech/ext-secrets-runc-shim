@@ -11,6 +11,8 @@ is to replace the `runtime_type` of the default `runc` shim.
 
 First, go to the [releases page](https://github.com/pelotech/ext-secrets-runc-shim/releases) and download the binary for your system architecture. Once it is downloaded, place it in the default `PATH` on your Kubernetes node(s). It is important that you name the binary `containerd-shim-ext-secrets-runc-v1`. You _may_ replace the `ext-secrets-runc` part depending on the `runtime_type` you specify below.
 
+_Alternative to downloading, clone this repository and run `make`. The output will be in `test/shim`_
+
 _While this project is very early-stages POC, an obvious more persistent and scalable installation would be to bake the binary and following configurations into your node image(s) or bootstrap._
 
 Edit `/etc/containerd/config.toml` and replace the contents of the following section as so:
