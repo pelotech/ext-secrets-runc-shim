@@ -45,9 +45,9 @@ Since this project is stil POC, tested in this case implies a basic functionalit
 | Provider              | Tag     | Implemented        | Tested             |
 |:---------------------:|:-------:|:------------------:|:------------------:|
 | Vault                 | `vault` | :heavy_check_mark: | :heavy_check_mark: |
-| AWS SSM               | `ssm`   | :heavy_check_mark: | :white_check_mark: |
-| Google Secret Manager | `gsm`   | :heavy_check_mark: | :white_check_mark: |
-| Azure Key Vault       | `akv`   | :heavy_check_mark: | :white_check_mark: |
+| AWS SSM               | `ssm`   | :heavy_check_mark: | :x: |
+| Google Secret Manager | `gsm`   | :heavy_check_mark: | :x: |
+| Azure Key Vault       | `akv`   | :heavy_check_mark: | :x: |
 
 _Feel free to open a PR to track the implementation of other secret storage engines._
 
